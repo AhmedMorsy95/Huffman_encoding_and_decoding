@@ -70,7 +70,18 @@ void build_Huffman(string text){
    traverse(q.top(),"");
 
 }
+void write_into_text_file(string code,string filename){
+   fstream out;
+   out.open(filename);
+   out << codes.size()<<endl;
+   for(auto i : codes){
+       out<<i.first<<' '<<i.second<<endl;
+   }
+   out << code;
+}
 void write_into_binary_file(string code){
+    int letters = codes.size();
+
     int counter = 0;
     unsigned char cur_byte;
     FILE *f ;
@@ -114,6 +125,7 @@ void compress_data_from_file(string filename){ /// file to open
   cout<<"encoded\n";
   cout<<encoded;
   write_into_binary_file(encoded);
+  write_into_text_file(encoded,"compressed.txt");
 }
 int main()
 {
