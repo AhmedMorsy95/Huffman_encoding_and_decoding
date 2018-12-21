@@ -89,6 +89,7 @@ void compress_data_from_file(string filename){ /// file to open
   for(int i=0;i<text.length();i++){
     encoded += codes[text[i]];
   }
+  cout<<"encoded\n";
   cout<<encoded;
 }
 int main()
