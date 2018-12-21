@@ -70,6 +70,28 @@ void build_Huffman(string text){
    traverse(q.top(),"");
 
 }
+void write_into_binary_file(string code){
+    int counter = 0;
+    unsigned char cur_byte;
+    FILE *f ;
+    f = fopen("compressed.bin","w");
+
+    for(int i=0;i<code.length();i++){
+          unsigned char cur_bit = code[i] - '0';
+          cur_byte <<= 1;
+          cur_byte |= cur_bit;
+          counter++;
+          if(counter == 8){
+               fwrite(&cur_byte,1,1,f);
+               counter = 0;
+               cur_byte = 0;
+          }
+    }
+    if(counter){
+        cur_byte <<= 8 - counter;
+        fwrite(&cur_byte,1,1,f);
+    }
+}
 void compress_data_from_file(string filename){ /// file to open
   /// reading data
   ifstream in;
@@ -89,7 +111,9 @@ void compress_data_from_file(string filename){ /// file to open
   for(int i=0;i<text.length();i++){
     encoded += codes[text[i]];
   }
+  cout<<"encoded\n";
   cout<<encoded;
+  write_into_binary_file(encoded);
 }
 int main()
 {
