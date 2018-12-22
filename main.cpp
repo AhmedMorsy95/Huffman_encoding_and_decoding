@@ -73,7 +73,6 @@ void build_Huffman(string text){
    cout<<"Codes\n";
    /// traveserse tree
    traverse(q.top(),"");
-
 }
 void write_into_text_file(string code,string filename){
    fstream out;
@@ -199,43 +198,6 @@ string get_x_bits(char c1,char c2,int used_bits){
 }
 
 void decode(string filename){
-   ifstream in;
-   in.open(filename,ios::in | ios::binary);
-   vector<char>all;
-   if(in.is_open()){
-        char c;
-        while(in.get(c)){
-            all.push_back(c);
-        }
-   }
-   in.close();
-   int n = char_to_int(all[0]);
-   int idx = 1;
-   cout<<"\ndecoding...\n"<<"found "<<n<<" unique characters.\n"<<endl;
-   map<string,char>reverse_code;
-   for(int i=0;i<n;i++){
-       /// symbol code how many bits used
-       char symbol = all[idx++];
-       char code1 = all[idx++];
-       char code2 = all[idx++];
-       int used_bits = char_to_int(all[idx++]);
-       cout<<symbol<<' '<<used_bits<<' '<<get_x_bits(code1,code2,used_bits)<<endl;
-       string cur_symbol_code = get_x_bits(code1,code2,used_bits);
-       reverse_code[cur_symbol_code] = symbol;
-   }
-   int padding = char_to_int(all[idx++]);
-   string code = "";
-   while(idx < all.size()){
-         code += bitset<8>(all[idx++]).to_string();
-   }
-   string tmp = "";
-   for(int i=0;i + padding<code.size();i++){
-      tmp += code[i];
-      if(reverse_code.count(tmp)){
-        cout<<reverse_code[tmp];
-        tmp = "";
-      }
-   }
 
 }
 
@@ -250,8 +212,19 @@ int main()
 }
 
 /*
-number of characters
-character -> code  01
+
+
+
+/*
+
+The file format :
+
+N : number of unique characters
+N lines follow each line : character(1 byte) , code(2 byte) , usedBits(1 byte)
+
+padding bits (1 byte) : f a5r el code w mlhomsh lzma 3chn lw msln feh character m3molha mapping l 00 mytb3hash
+
+Then follows a series of 0s and 1s representing compressed code.
 
 
 
