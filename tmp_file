@@ -73,8 +73,8 @@ void build_Huffman(string text){
    cout<<"Codes\n";
    /// traveserse tree
    traverse(q.top(),"");
+
 }
-/// not used but my be needed
 void write_into_text_file(string code,string filename){
    fstream out;
    out.open(filename);
@@ -110,30 +110,23 @@ void write_into_binary_file(string code,string filename){
    /// number of unique characters
    int n = codes.size();
    OutFile << int_to_char(n);
-   /// characters , used_bits_of_code x 2 BYTES , character_code
+   /// characters , used_bits_of_code , character_code
    for(auto i : codes){
        OutFile<<i.first;
        int counter = 0;
        unsigned char c=0;
        if(i.second.length() > 16){
           cout << "Symbol size exceeds 16 bits exiting...";
+
        }
-       int used = (int)i.second.length();
-       string mapping = i.second;
-       /// extend the code for this symbol to be 16 bits
-       while(mapping.length() < 16) mapping += "0";
-       /// convert 16 series of 0s and 1s into 2 bytes
-       for(int j=0;j<mapping.length();j++){
+       for(char j : i.second){
             c<<=1;
-            c|=(mapping[j]-'0');
+            c|=(j-'0');
             counter++;
-            if(counter == 8){
-               OutFile << c;
-               c = 0;
-               counter = 0;
-            }
        }
-       OutFile << int_to_char(used);
+       OutFile << counter;
+       c <<= 8 - counter;
+       OutFile << c;
    }
    /// write the extra padding
     int all = ((int)code.length())%8;
@@ -152,14 +145,13 @@ void write_into_binary_file(string code,string filename){
                cur_byte = 0;
           }
     }
-    /// last byte handling
     if(counter){
         cur_byte <<= 8 - counter;
         OutFile << cur_byte;
     }
     OutFile.close();
 }
-/// main compression function
+
 void compress_data_from_file(string filename){ /// file to open
   /// reading data
   ifstream in;
@@ -183,30 +175,61 @@ void compress_data_from_file(string filename){ /// file to open
   cout<<"encoded\n";
   cout<<encoded;
   string tmp = "";
-  /// convert file extension into .bin
   for(int i=0;i<filename.length();i++){
     if(filename[i] == '.')break;
     tmp += filename[i];
   }
   tmp += ".bin";
-  ///write into binary file
   write_into_binary_file(encoded,tmp);
 }
-/// just for debugging
+
 void printbinchar(char character)
 {
    string x = bitset<8>(character).to_string();
    cout<<x;
 }
-/// takes the first and second byte of the code generated each symbol
-/// and the number of bits used to represent this symbol
-/// returns only the "used_bits"
-string get_x_bits(char c1,char c2,int used_bits){
-   string x = bitset<8>(c1).to_string() + bitset<8>(c2).to_string();
+string get_x_bits(char c,int used_bits){
+   string x = bitset<8>(c).to_string();
    return x.substr(0,used_bits);
 }
 
 void decode(string filename){
+   ifstream in;
+   in.open(filename,ios::in | ios::binary);
+   vector<char>all;
+   if(in.is_open()){
+        char c;
+        while(in.get(c)){
+            all.push_back(c);
+        }
+   }
+   in.close();
+   int n = char_to_int(all[0]);
+   int idx = 1;
+   cout<<"\ndecoding...\n"<<"found "<<n<<" unique characters.\n"<<endl;
+   map<string,char>reverse_code;
+   for(int i=0;i<n;i++){
+       /// symbol code how many bits used
+       char symbol = all[idx++];
+       int used_bits = all[idx++] - '0';
+       char code = all[idx++];
+       cout<<symbol<<' '<<used_bits<<' '<<get_x_bits(code,used_bits)<<endl;
+       string cur_symbol_code = get_x_bits(code,used_bits);
+       reverse_code[cur_symbol_code] = symbol;
+   }
+   int padding = char_to_int(all[idx++]);
+   string code = "";
+   while(idx < all.size()){
+         code += bitset<8>(all[idx++]).to_string();
+   }
+   string tmp = "";
+   for(int i=0;i + padding<code.size();i++){
+      tmp += code[i];
+      if(reverse_code.count(tmp)){
+        cout<<reverse_code[tmp];
+        tmp = "";
+      }
+   }
 
 }
 
@@ -215,20 +238,16 @@ int main()
     /// call function  compress_data_from_file(filename)
     /// it will read data in filename
     compress_data_from_file("test.in");
-    decode("test.bin");
+    //decode("test.bin");
 
     return 0;
 }
 
 /*
+number of characters
+character -> code  01
 
-The file format :
 
-N : number of unique characters
-N lines follow each line : character(1 byte) , code(2 byte) , usedBits(1 byte)
-
-padding bits (1 byte) : f a5r el code w mlhomsh lzma 3chn lw msln feh character m3molha mapping l 00 mytb3hash
-
-Then follows a series of 0s and 1s representing compressed code.
 
 */
+

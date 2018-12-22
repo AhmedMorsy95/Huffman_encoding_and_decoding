@@ -1,1 +1,68 @@
-aaabc
+while(p->next!=NULL && p->x!=c)
+{
+	q=p; p=p->next;
+}
+
+if(p->x==c)
+{
+	p->freq+=1;
+        if(p->next==NULL)
+		return;	
+	if(p->freq > p->next->freq)
+	{
+		m=p->next;
+		q->next=p->next;
+		p->next=NULL;
+		insert(p,HEAD);
+	}
+}
+else  //p->next==NULL , all list traversed c is not found, insert it at beginning
+{	
+	q=newNode(c);
+	q->next=HEAD;  //first because freq is minimum
+while(p->next!=NULL && p->x!=c)
+{
+	q=p; p=p->next;
+}
+
+if(p->x==c)
+{
+	p->freq+=1;
+        if(p->next==NULL)
+		return;	
+	if(p->freq > p->next->freq)
+	{
+		m=p->next;
+		q->next=p->next;
+		p->next=NULL;
+		insert(p,HEAD);
+	}
+}
+else  //p->next==NULL , all list traversed c is not found, insert it at beginning
+{	
+	q=newNode(c);
+	q->next=HEAD;  //first because freq is minimum
+	HEAD=q;
+}
+}
+
+void makeTree()
+{
+node  *p,*q;
+p=HEAD;
+	while(p!=NULL)
+	{
+		q=newNode('@');
+		q->type=INTERNAL;	//internal node
+		q->left=p;		//join left subtree/node
+		q->freq=p->freq;
+		if(p->next!=NULL)
+		{
+			p=p->next;
+			q->right=p;	//join right subtree /node
+			q->freq+=p->freq;
+		}
+		p=p->next;	//consider next node frm list
+		if(p==NULL)	//list ends
+			break;
+

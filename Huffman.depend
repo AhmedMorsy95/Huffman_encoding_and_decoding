@@ -1,7 +1,12 @@
 # depslib dependency file v1.0
-1545403490 source:/home/ahmed/Desktop/Huffman/main.cpp
+1545441866 source:/home/ahmed/Desktop/Huffman/main.cpp
 	<iostream>
 	<map>
 	<fstream>
 	<queue>
+	<stdlib.h>
+	<bitset>
+	<vector>
+	<string>
+	<algorithm>
 
